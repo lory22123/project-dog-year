@@ -120,7 +120,8 @@ function convertAge() {
   const diff = now - birthDate;
   const dogYears = diff / (1000 * 60 * 60 * 24 * 365);
 
-  const humanAge = Math.round(16 * Math.log(dogYears + 1) + 31);
+  const // 使用 UC San Diego 最新公式換算
+        const humanAge = 16 * Math.log(dogAgeYears) + 31;
 
   const care = getCareAdvice(dogYears);
 
