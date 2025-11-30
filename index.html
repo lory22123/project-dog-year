@@ -91,6 +91,19 @@
   </div>
 
 <script>
+// 初始化：載入 localStorage
+window.onload = function () {
+  const savedBirth = localStorage.getItem('birth');
+  const savedResult = localStorage.getItem('lastResult');
+
+  if (savedBirth) {
+    document.getElementById('birth').value = savedBirth;
+  }
+  if (savedResult) {
+    document.getElementById('result').innerHTML = savedResult;
+  }
+};
+
 function convertAge() {
   const name = document.getElementById('dogName').value || '妙麗';
   const birth = document.getElementById('birth').value;
@@ -98,6 +111,9 @@ function convertAge() {
     document.getElementById('result').innerHTML = '❗請輸入出生年月日';
     return;
   }
+
+  // 儲存到 localStorage
+  localStorage.setItem('birth', birth);
 
   const birthDate = new Date(birth);
   const now = new Date();
@@ -108,13 +124,18 @@ function convertAge() {
 
   const care = getCareAdvice(dogYears);
 
-  document.getElementById('result').innerHTML = `
+  const resultHTML = `
     <strong>${name}</strong> 的換算結果：<br><br>
     🐾 狗狗實際年齡：約 <strong>${dogYears.toFixed(1)}</strong> 歲<br>
     🧍 換算成人類年齡：約 <strong>${humanAge}</strong> 歲<br><br>
     📌 <strong>該年齡需注意：</strong><br>
     ${care}
   `;
+
+  document.getElementById('result').innerHTML = resultHTML;
+
+  // 儲存結果
+  localStorage.setItem('lastResult', resultHTML);
 }
 
 function getCareAdvice(age) {
