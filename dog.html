@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>狗狗年齡換算工具</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans TC", sans-serif;
+      background: url('https://images.unsplash.com/photo-1517849845537-4d257902454a') no-repeat center/cover;
+      backdrop-filter: blur(3px);
+      color: #5a4635;
+    }
+    .overlay {
+      background: rgba(255, 255, 255, 0.85);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .container {
+      background: #fffaf4;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #d3c4ae;
+    }
+    button {
+      margin-top: 20px;
+      background: #d9a46f;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #c68c55;
+    }
+    .result {
+      margin-top: 20px;
+      background: #fff4e5;
+      padding: 15px;
+      border-radius: 12px;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 1.6rem; }
+    }
+    @media (max-width: 320px) {
+      h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>🐶 狗狗年齡換算工具</h1>
+    <div class="container">
+
+      <label for="dogName">狗狗的名字（預設：妙麗）</label>
+      <input type="text" id="dogName" placeholder="請輸入狗狗名字" value="妙麗" />
+
+      <label for="birth">輸入出生年月日</label>
+      <input type="date" id="birth" />
+
+      <button onclick="convertAge()">開始換算</button>
+
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+
+<script>
+function convertAge() {
+  const name = document.getElementById('dogName').value || '妙麗';
+  const birth = document.getElementById('birth').value;
+  if (!birth) {
+    document.getElementById('result').innerHTML = '❗請輸入出生年月日';
+    return;
+  }
+
+  const birthDate = new Date(birth);
+  const now = new Date();
+  const diff = now - birthDate;
+  const dogYears = diff / (1000 * 60 * 60 * 24 * 365);
+
+  const humanAge = Math.round(16 * Math.log(dogYears + 1) + 31);
+
+  const care = getCareAdvice(dogYears);
+
+  document.getElementById('result').innerHTML = `
+    <strong>${name}</strong> 的換算結果：<br><br>
+    🐾 狗狗實際年齡：約 <strong>${dogYears.toFixed(1)}</strong> 歲<br>
+    🧍 換算成人類年齡：約 <strong>${humanAge}</strong> 歲<br><br>
+    📌 <strong>該年齡需注意：</strong><br>
+    ${care}
+  `;
+}
+
+function getCareAdvice(age) {
+  if (age < 1) return "幼犬期：需要高蛋白營養、基礎疫苗、社會化訓練。";
+  if (age < 3) return "青年期：大量運動與基礎訓練，維持穩定作息。";
+  if (age < 7) return "壯年期：均衡飲食、定期體檢、維持良好體重。";
+  return "熟齡期：關節保養、心臟檢查、低負擔運動與高品質睡眠。";
+}
+</script>
+
+</body>
+</html>
