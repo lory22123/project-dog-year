@@ -84,7 +84,7 @@
       <label for="birth">輸入出生年月日</label>
       <input type="date" id="birth" />
 
-      <button onclick="convertAge()">開始換算</button>
+      <button id="convertBtn">開始換算</button>
 
       <div class="result" id="result"></div>
     </div>
@@ -92,7 +92,7 @@
 
 <script>
 // 初始化：載入 localStorage
-window.onload = function () {
+window.addEventListener('DOMContentLoaded', function () {
   const savedBirth = localStorage.getItem('birth');
   const savedResult = localStorage.getItem('lastResult');
 
@@ -102,7 +102,10 @@ window.onload = function () {
   if (savedResult) {
     document.getElementById('result').innerHTML = savedResult;
   }
-};
+
+  // 綁定按鈕事件
+  document.getElementById('convertBtn').addEventListener('click', convertAge);
+});
 
 function convertAge() {
   const name = document.getElementById('dogName').value || '妙麗';
@@ -115,22 +118,32 @@ function convertAge() {
   // 儲存到 localStorage
   localStorage.setItem('birth', birth);
 
-  const birthDate = new Date(birth);
+  const birthDate = new Date(birth + 'T00:00:00'); // 時區一致處理
   const now = new Date();
-  const diff = now - birthDate;
-  const dogYears = diff / (1000 * 60 * 60 * 24 * 365);
 
-  const // 使用 UC San Diego 最新公式換算
-        const humanAge = 16 * Math.log(dogAgeYears) + 31;
+  if (birthDate > now) {
+    document.getElementById('result').innerHTML = '❗出生日期不可在未來，請檢查輸入。';
+    return;
+  }
+
+  const diff = now - birthDate;
+  const dogYears = diff / (1000 * 60 * 60 * 24 * 365.2425);
+
+  // 使用 UC San Diego 公式：human = 16 * ln(dogYears) + 31
+  // 避免 ln(0) 或負數情形：若 dogYears <= 0，視為 0
+  const safeDogYears = Math.max(dogYears, 0.000001);
+  const humanAgeRaw = 16 * Math.log(safeDogYears) + 31;
+  const humanAge = Number.isFinite(humanAgeRaw) ? humanAgeRaw : 0;
+  const humanAgeDisplay = humanAge > 0 ? humanAge.toFixed(1) : '0.0';
 
   const care = getCareAdvice(dogYears);
 
   const resultHTML = `
-    <strong>${name}</strong> 的換算結果：<br><br>
+    <strong>${escapeHtml(name)}</strong> 的換算結果：<br><br>
     🐾 狗狗實際年齡：約 <strong>${dogYears.toFixed(1)}</strong> 歲<br>
-    🧍 換算成人類年齡：約 <strong>${humanAge}</strong> 歲<br><br>
+    🧍 換算成人類年齡：約 <strong>${humanAgeDisplay}</strong> 歲（UC San Diego 公式估算）<br><br>
     📌 <strong>該年齡需注意：</strong><br>
-    ${care}
+    ${escapeHtml(care)}
   `;
 
   document.getElementById('result').innerHTML = resultHTML;
@@ -144,6 +157,16 @@ function getCareAdvice(age) {
   if (age < 3) return "青年期：大量運動與基礎訓練，維持穩定作息。";
   if (age < 7) return "壯年期：均衡飲食、定期體檢、維持良好體重。";
   return "熟齡期：關節保養、心臟檢查、低負擔運動與高品質睡眠。";
+}
+
+// 簡單的 HTML escape，避免 XSS（雖然使用者輸入主要是姓名）
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 </script>
 
